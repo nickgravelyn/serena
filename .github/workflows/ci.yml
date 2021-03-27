@@ -15,13 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: cargo build
-        run: cargo build --verbose
-
-  style:
-    name: Style
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: cargo fmt
-        run: cargo fmt --all -- --check
+      - name: Build debug
+        run: cargo build
+      - name: Build release
+        run: cargo build --release
