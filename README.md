@@ -2,31 +2,14 @@
 
 Fast and lightweight static site server for local development. Because sometimes the best website is just a directory of files.
 
+Run `serena` in your terminal of choice to serve your current directory as a website at `localhost:3000`. Serena automatically reloads the browser any time a file in the directory changes so iterating on your website is super fast.
+
 
 ## Installing
 
 If you're just looking for a compiled executable to run, take a look at the [Releases](https://github.com/nickgravelyn/serena/releases) page.
 
 If you're a Rust developer, you can clone the repo and just build it with `cargo build --release` like any other Rust project.
-
-
-## Running
-
-The simplest way is to just run the program:
-
-```sh
-serena
-```
-
-This will start a new server at `localhost:3000` which serves the current directory as a website.
-
-You can also specify options for the directory, port, and a flag to automatically reload browsers when files change:
-
-```sh
-serena /path/to/directory --port=8080 --watch
-```
-
-Run `serena --help` at any time to see the help guide.
 
 
 ## Development
