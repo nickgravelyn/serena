@@ -15,7 +15,7 @@ if [ -z "$(git status --porcelain)" ]; then
         mv CHANGELOG.md.tmp CHANGELOG.md
 
         echo "Updating Cargo.toml…"
-        sed "s/version = .*/version = \"$new_version\"/" Cargo.toml > Cargo.toml.tmp
+        sed "s/^version = .*/version = \"$new_version\"/" Cargo.toml > Cargo.toml.tmp
         mv Cargo.toml.tmp Cargo.toml
 
         echo "Updating Cargo.lock with new workspace version…"
