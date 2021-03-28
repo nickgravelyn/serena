@@ -11,7 +11,7 @@ if [ -z "$(git status --porcelain)" ]; then
         echo "Add changes to CHANGELOG.md and try again."
     else
         echo "Updating CHANGELOG.md…"
-        sed "s/## Unreleased/## Unreleased\n\n## $new_version/" CHANGELOG.md > CHANGELOG.md.tmp
+        sed "s/## Unreleased/## Unreleased\n\n## $new_version - $(date +'%Y-%m-%d')/" CHANGELOG.md > CHANGELOG.md.tmp
         mv CHANGELOG.md.tmp CHANGELOG.md
 
         echo "Updating Cargo.toml…"
