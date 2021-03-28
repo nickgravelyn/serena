@@ -3,6 +3,13 @@
 Fast and lightweight static site server for local development. Because sometimes the best website is just a directory of files.
 
 
+## Installing
+
+If you're just looking for a compiled executable to run, take a look at the [Releases](https://github.com/nickgravelyn/serena/releases) page.
+
+If you're a Rust developer, you can clone the repo and just build it with `cargo build --release` like any other Rust project.
+
+
 ## Running
 
 The simplest way is to just run the program:
