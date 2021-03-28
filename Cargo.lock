@@ -550,7 +550,7 @@ dependencies = [
 
 [[package]]
 name = "serena"
-version = "0.1.0"
+version = "21.3.0"
 dependencies = [
  "clap",
  "futures",
