@@ -25,7 +25,7 @@ async fn main() {
         opts.directory, addr
     );
 
-    let watcher = if opts.no_auto_reload {
+    let watcher = if opts.no_auto_refresh {
         None
     } else {
         Some(Arc::new(FileWatcher::new(opts.directory.clone())))
