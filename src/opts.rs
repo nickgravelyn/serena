@@ -4,7 +4,7 @@ use clap::{crate_description, crate_name, crate_version, App, Arg, ArgMatches};
 pub struct Opts {
     pub directory: String,
     pub port: u16,
-    pub watch: bool,
+    pub no_auto_reload: bool,
 }
 
 impl Opts {
@@ -16,12 +16,12 @@ impl Opts {
             Ok(v) => v,
             _ => 3000,
         };
-        let watch = matches.is_present("watch");
+        let no_auto_reload = matches.is_present("no_auto_reload");
 
         Opts {
             directory,
             port,
-            watch,
+            no_auto_reload,
         }
     }
 }
@@ -45,10 +45,9 @@ fn get_matches_from_clap() -> ArgMatches<'static> {
                 .default_value("3000"),
         )
         .arg(
-            Arg::with_name("watch")
-                .short("w")
-                .long("watch")
-                .help("Automatically refresh browsers when a change is detected"),
+            Arg::with_name("no_auto_reload")
+                .long("no-auto-reload")
+                .help("Disables automatic browser reloading when files change"),
         )
         .get_matches()
 }

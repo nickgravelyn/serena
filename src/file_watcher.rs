@@ -5,35 +5,19 @@ use tokio::sync::broadcast::{Receiver, Sender};
 pub struct FileWatcher {
     thread: Option<JoinHandle<()>>,
     sender: Option<Sender<()>>,
-    directory: String,
 }
 
 impl FileWatcher {
     pub fn new(directory: String) -> FileWatcher {
+        let (sender, _) = tokio::sync::broadcast::channel::<()>(32);
+
+        let refresh = sender.clone();
+        let thread = std::thread::spawn(move || watch_for_file_changes(directory, refresh));
+
         FileWatcher {
-            thread: None,
-            sender: None,
-            directory,
+            thread: Some(thread),
+            sender: Some(sender),
         }
-    }
-
-    pub fn start_watching(&mut self) {
-        let (refresh_sender, _) = tokio::sync::broadcast::channel::<()>(32);
-
-        let dir = self.directory.clone();
-        let thread_sender = refresh_sender.clone();
-        self.thread = Some(std::thread::spawn(move || {
-            watch_for_file_changes(dir, thread_sender)
-        }));
-
-        self.sender = Some(refresh_sender);
-    }
-
-    pub fn stop_watching(&mut self) {
-        if let Some(h) = self.thread.take() {
-            h.join().unwrap();
-        }
-        self.sender = None;
     }
 
     pub fn subscribe(&self) -> Option<Receiver<()>> {
@@ -47,7 +31,10 @@ impl FileWatcher {
 
 impl Drop for FileWatcher {
     fn drop(&mut self) {
-        self.stop_watching();
+        if let Some(h) = self.thread.take() {
+            h.join().unwrap();
+        }
+        self.sender = None;
     }
 }
 

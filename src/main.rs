@@ -25,11 +25,11 @@ async fn main() {
         opts.directory, addr
     );
 
-    let mut watcher = FileWatcher::new(opts.directory.clone());
-    if opts.watch {
-        watcher.start_watching();
-    }
-    let watcher = Arc::new(watcher);
+    let watcher = if opts.no_auto_reload {
+        None
+    } else {
+        Some(Arc::new(FileWatcher::new(opts.directory.clone())))
+    };
 
     let root_dir = opts.directory.clone();
     let make_service = make_service_fn(move |_| {
@@ -52,15 +52,17 @@ async fn main() {
 async fn handle_request(
     req: Request<Body>,
     root_dir: String,
-    watcher: Arc<FileWatcher>,
+    watcher: Option<Arc<FileWatcher>>,
 ) -> Result<Response<Body>> {
     let path = req.uri().path();
     if path == "/__serena" {
-        if let Some(receiver) = watcher.subscribe() {
-            refresh_events(receiver).await
-        } else {
-            not_found()
+        if let Some(watcher) = watcher {
+            if let Some(receiver) = watcher.subscribe() {
+                return refresh_events(receiver).await;
+            }
         }
+
+        not_found()
     } else {
         transfer_file(path, root_dir).await
     }
