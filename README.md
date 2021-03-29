@@ -2,7 +2,7 @@
 
 Fast and lightweight static site server for local development. Because sometimes the best website is just a directory of files.
 
-Run `serena` in your terminal of choice to serve your current directory as a website at `localhost:3000`. Serena automatically refreshes your browser any time a file in the directory changes so iterating on your website is super fast.
+Run `serena` in your terminal of choice to serve your current directory as a website at `localhost:3000`. Serena automatically refreshes your browser any time a file in the directory changes so iterating on your website is super fast. You can also pass a directory path or change the port if you need to: `serena some/other/directory --port 8080`. Run `serena --help` for full details on options.
 
 
 ## Installing
