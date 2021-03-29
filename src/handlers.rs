@@ -1,10 +1,11 @@
 use std::{
     fs::read_to_string,
     path::{Path, PathBuf},
+    sync::Arc,
     time::Duration,
 };
 
-use hyper::{header::HeaderValue, Body, Response, Result};
+use hyper::{header::HeaderValue, Body, Request, Response, Result};
 use tokio::{
     fs::File,
     sync::{broadcast::Receiver, mpsc::UnboundedSender},
@@ -13,16 +14,41 @@ use tokio::{
 use tokio_stream::wrappers::UnboundedReceiverStream;
 use tokio_util::codec::{BytesCodec, FramedRead};
 
-use crate::content_type::content_type_from_path;
+use crate::{content_type::content_type_from_path, file_watcher::FileWatcher};
 
-pub fn not_found() -> Result<Response<Body>> {
+pub async fn handle_request(
+    req: Request<Body>,
+    root_dir: String,
+    watcher: Option<Arc<FileWatcher>>,
+) -> Result<Response<Body>> {
+    if let Some(refresh_receiver) = is_refresh_request(&req, watcher) {
+        return refresh_events(refresh_receiver).await;
+    } else {
+        transfer_file(req.uri().path(), root_dir).await
+    }
+}
+
+fn is_refresh_request(
+    req: &Request<Body>,
+    watcher: Option<Arc<FileWatcher>>,
+) -> Option<Receiver<()>> {
+    if req.uri().path() == "/__serena" {
+        if let Some(watcher) = watcher {
+            return watcher.subscribe();
+        }
+    }
+
+    None
+}
+
+fn not_found() -> Result<Response<Body>> {
     Ok(Response::builder()
         .status(404)
         .body(Body::from(""))
         .unwrap())
 }
 
-pub async fn transfer_file(path: &str, root_dir: String) -> Result<Response<Body>> {
+async fn transfer_file(path: &str, root_dir: String) -> Result<Response<Body>> {
     let filepath = build_file_path(&path, &root_dir);
     if let Ok(file) = File::open(&filepath).await {
         if is_html_file(&filepath) {
@@ -87,7 +113,7 @@ static INJECTED_SCRIPT: &str = "
 </script>
 ";
 
-pub async fn refresh_events(refresh_receiver: Receiver<()>) -> Result<Response<Body>> {
+async fn refresh_events(refresh_receiver: Receiver<()>) -> Result<Response<Body>> {
     let (sender, receiver) = tokio::sync::mpsc::unbounded_channel::<Result<String>>();
 
     keep_alive(sender.clone());
